@@ -6,10 +6,11 @@ var router = express.Router();
 const multerStorage = multer.memoryStorage()
 const upload = multer({ storage: multerStorage })
 
-const storage = getStorage(app);
+const firebaseUpload = require('../module/upload.js');
 
-router.post('/', upload.single('img'), function(req, res, next) {
+router.post('/', upload.single('img'), async function(req, res, next) {
     let strResult = "성공";
+    let uploadTime = 0;
 
     const timestamp = Date.now();  // 파일 고유 값을 위한 timestamp
     const imgName = req.body.img_name;
@@ -23,9 +24,15 @@ router.post('/', upload.single('img'), function(req, res, next) {
     // 저장할 파일 이름
     const fileName =  imgName + '_' + timestamp + extension;
 
-    console.log(fileName + "업로드 시작");
+    console.log(fileName + " 업로드 시작");
+
+    try {
+      uploadTime = await firebaseUpload(fileName, req.file.metadata, buffer);
+    } catch(e) {
+      strResult = "실패";
+    }
     
-    res.render('result', {result: strResult});
+    await res.render('result', {result: strResult, time: uploadTime});
 });
 
 module.exports = router;
