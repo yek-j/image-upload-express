@@ -13,10 +13,14 @@ router.post('/', upload.single('img'), async function(req, res, next) {
     let uploadTime = 0;
 
     const timestamp = Date.now();  // 파일 고유 값을 위한 timestamp
-    const imgName = req.body.img_name;
+    let imgName = req.body.img_name;
     const oriName = req.file.originalname;
     const buffer = req.file.buffer;
 
+    if (imgName === "") {
+        imgName = oriName;
+    }
+    
     // 파일 확장자
     const extenIndex = oriName.lastIndexOf('.');
     const extension = oriName.slice(extenIndex).toLowerCase();
